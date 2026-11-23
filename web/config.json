@@ -8,5 +8,6 @@
     {"label": "Hope", "query": "Hope"},
     {"label": "Massey", "query": "Massey"}
   ],
-  "placeLimit": 12
+  "placeLimit": 12,
+  "mapStyle": "https://tiles.openfreemap.org/styles/positron"
 }

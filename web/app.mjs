@@ -1,4 +1,4 @@
-import { boundsFor, cameraMatches, formatWhen, groupCameras, imageUrl, project } from "./model.mjs";
+import { boundsFor, cameraMatches, formatWhen, groupCameras, imageUrl } from "./model.mjs";
 
 const queryInput = document.querySelector("#query");
 const presets = document.querySelector("#presets");
@@ -6,7 +6,7 @@ const finding = document.querySelector("#finding");
 const map = document.querySelector("#map");
 const frames = document.querySelector("#frames");
 const more = document.querySelector("#more");
-const state = { file: null, config: { presets: [], placeLimit: 12 }, shown: 12 };
+const state = { file: null, config: { presets: [], placeLimit: 12 }, shown: 12, pending: [] };
 
 function clear(node) {
   while (node.firstChild) node.removeChild(node.firstChild);
@@ -24,27 +24,81 @@ function matches() {
   return groupCameras((state.file?.cameras || []).filter((camera) => cameraMatches(camera, queryInput.value)));
 }
 
-function drawMap(groups) {
-  clear(map);
-  const bounds = boundsFor(groups);
+function cameraFeatures(groups) {
+  return {
+    type: "FeatureCollection",
+    features: groups.filter((group) => Number.isFinite(group.lat) && Number.isFinite(group.lon)).map((group) => ({
+      type: "Feature",
+      properties: { title: group.highway ? `Highway ${group.highway} · ${group.name}` : group.name },
+      geometry: { type: "Point", coordinates: [group.lon, group.lat] },
+    })),
+  };
+}
+
+function paintMap() {
+  if (!state.map || !state.mapReady) return;
+  state.map.getSource("cameras").setData(cameraFeatures(state.pending));
+  state.map.resize();
+  const bounds = boundsFor(state.pending);
   if (!bounds) return;
-  const width = 800;
-  const height = 360;
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  for (const group of groups) {
-    if (!Number.isFinite(group.lat)) continue;
-    const [x, y] = project(group, bounds, width, height);
-    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    dot.setAttribute("cx", x.toFixed(1));
-    dot.setAttribute("cy", y.toFixed(1));
-    dot.setAttribute("r", "6");
-    const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-    title.textContent = group.name;
-    dot.append(title);
-    svg.append(dot);
+  state.map.fitBounds([[bounds.minLon, bounds.minLat], [bounds.maxLon, bounds.maxLat]], { padding: 40, animate: false, maxZoom: 13 });
+}
+
+function ensureMap() {
+  if (state.map || state.mapFailed) return;
+  if (!window.maplibregl) {
+    state.mapFailed = true;
+    map.textContent = "The street map did not load.";
+    return;
   }
-  map.append(svg);
+  try {
+    const streets = new window.maplibregl.Map({
+      container: map,
+      style: state.config.mapStyle || "https://tiles.openfreemap.org/styles/positron",
+      center: [-122.6, 49.1],
+      zoom: 10,
+      scrollZoom: false,
+      cooperativeGestures: false,
+      attributionControl: true,
+    });
+    streets.addControl(new window.maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    streets.on("load", () => {
+      streets.addSource("cameras", { type: "geojson", data: cameraFeatures([]) });
+      streets.addLayer({
+        id: "cameras",
+        type: "circle",
+        source: "cameras",
+        paint: {
+          "circle-radius": 7,
+          "circle-color": "#1f4f6b",
+          "circle-stroke-width": 1.5,
+          "circle-stroke-color": "#faf9ed",
+        },
+      });
+      streets.on("click", "cameras", (event) => {
+        const feature = event.features && event.features[0];
+        if (!feature) return;
+        new window.maplibregl.Popup({ closeButton: true, maxWidth: "260px" })
+          .setLngLat(event.lngLat)
+          .setText(feature.properties.title || "Camera")
+          .addTo(streets);
+      });
+      streets.on("mouseenter", "cameras", () => { streets.getCanvas().style.cursor = "pointer"; });
+      streets.on("mouseleave", "cameras", () => { streets.getCanvas().style.cursor = ""; });
+      state.mapReady = true;
+      paintMap();
+    });
+    state.map = streets;
+  } catch {
+    state.mapFailed = true;
+    map.textContent = "The street map did not start in this browser.";
+  }
+}
+
+function drawMap(groups) {
+  state.pending = groups;
+  ensureMap();
+  paintMap();
 }
 
 function drawFrames(groups) {
@@ -146,6 +200,7 @@ async function main() {
     state.shown = matches().length;
     render();
   });
+  window.addEventListener("resize", () => { if (state.map) state.map.resize(); });
   render();
 }
 

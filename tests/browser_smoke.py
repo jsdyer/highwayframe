@@ -30,6 +30,7 @@ def main():
                 page.on("pageerror", lambda error: errors.append(str(error)))
                 page.goto(f"http://127.0.0.1:{server.server_port}/highwayframe/")
                 page.wait_for_function("() => document.querySelector('#finding').textContent.includes('camera sites')")
+                page.wait_for_function("() => document.querySelector('#map canvas')")
                 assert "langley" in page.locator("#finding").inner_text().lower()
                 page.locator("#query").fill("Revelstoke")
                 page.wait_for_function("() => document.querySelector('#frames').textContent.includes('Revelstoke')")

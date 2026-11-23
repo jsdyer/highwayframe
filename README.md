@@ -14,11 +14,11 @@ Road closures and construction stay in [Road Pulse](https://coolcode.ca/roadpuls
 
 ## Source
 
-[DriveBC HighwayCams](https://catalogue.data.gov.bc.ca/dataset/bc-highwaycams), Open Government Licence – British Columbia. No API key. Picture addresses look like `https://www.drivebc.ca/images/292.jpg`. Opening one asks DriveBC for the image.
+[DriveBC HighwayCams](https://catalogue.data.gov.bc.ca/dataset/bc-highwaycams), Open Government Licence – British Columbia. No API key. Picture addresses look like `https://www.drivebc.ca/images/292.jpg`. Opening one asks DriveBC for the image. Streets on the map are [OpenFreeMap](https://openfreemap.org/) Positron, from OpenStreetMap, drawn with MapLibre GL 5.15.0 in `web/vendor/` (BSD-3-Clause).
 
 ## Expand or customize
 
-Defaults live in [web/config.json](web/config.json). `presets` are the buttons and the first one is the opening search. `placeLimit` is how many sites to draw before Show the rest. Add a preset or change the number, then push. Visitors can already type a place that is not a preset.
+Defaults live in [web/config.json](web/config.json). `presets` are the buttons and the first one is the opening search. `placeLimit` is how many sites to draw before Show the rest. `mapStyle` is the street-map style URL. Add a preset or change the number, then push. Visitors can already type a place that is not a preset.
 
 ```sh
 python3 scripts/refresh.py
