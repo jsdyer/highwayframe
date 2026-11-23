@@ -1,16 +1,25 @@
 {
-  "id": "coolcode-tool-template",
-  "title": "CoolCode Tool Starter",
-  "description": "A browser-only example that trims lines and removes exact duplicates.",
-  "category": "security",
-  "tags": ["text", "lines", "duplicates"],
-  "icon": "scan-search",
-  "url": "/coolcode-tool-template/",
-  "source": "https://github.com/jsdyer/coolcode-tool-template",
+  "id": "highwayframe",
+  "title": "Highway Frame",
+  "description": "Look up a B.C. highway camera and see the latest still DriveBC is serving, without the rest of the DriveBC site.",
+  "category": "places",
+  "tags": ["canada", "british columbia", "highways", "cameras", "drivebc"],
+  "icon": "camera",
+  "url": "/highwayframe/",
+  "source": "https://github.com/jsdyer/highwayframe",
   "hosting": "project",
   "access": "browser",
   "data_info": {
-    "mode": "local",
-    "detail": "The browser reads the text you paste and compares its lines."
+    "mode": "snapshot",
+    "cadence": "Weekly camera list · Pictures when opened",
+    "detail": "The DriveBC HighwayCams list supplies camera names, highways and picture addresses. The stills themselves are requested from DriveBC when you open a camera.",
+    "probes": [
+      {
+        "label": "Camera list",
+        "url": "https://coolcode.ca/highwayframe/data/status.json",
+        "path": ["retrieved"],
+        "count_at": { "path": ["cameras"], "unit": "cameras" }
+      }
+    ]
   }
 }

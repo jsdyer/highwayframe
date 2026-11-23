@@ -1,0 +1,12 @@
+{
+  "presets": [
+    {"label": "Langley", "query": "Langley"},
+    {"label": "Highway 1", "query": "1"},
+    {"label": "Highway 10", "query": "10"},
+    {"label": "Highway 99", "query": "99"},
+    {"label": "Coquihalla", "query": "Coquihalla"},
+    {"label": "Hope", "query": "Hope"},
+    {"label": "Massey", "query": "Massey"}
+  ],
+  "placeLimit": 12
+}
