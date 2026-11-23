@@ -11,7 +11,7 @@
   "access": "browser",
   "data_info": {
     "mode": "snapshot",
-    "cadence": "Weekly camera list · Pictures when opened",
+    "cadence": "Weekly",
     "detail": "The DriveBC HighwayCams list supplies camera names, highways and picture addresses. The stills themselves are requested from DriveBC when you open a camera.",
     "probes": [
       {
